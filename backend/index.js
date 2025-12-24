@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
-dotenv.config(); // ✅ MUST be at the top
+dotenv.config(); 
 
 const connectDb = require("./db/db");
 const userRouter = require("./router/userRouter");
@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "https://your-frontend-name.vercel.app"
+    "https://expense-tracker-gamma-mauve.vercel.app"
   ],
   credentials: true
 }));
@@ -27,10 +27,9 @@ app.get("/", (req, res) => {
 app.use("/auth", userRouter);
 app.use("/expenses", expenseRouter);
 
-// Connect DB
 connectDb();
 
-const port = process.env.PORT_NO || 4000; // ✅ correct fallback
+const port = process.env.PORT_NO || 4000; 
 
 app.listen(port, () => {
   console.log(`🚀 Server on :- ${port}`);
