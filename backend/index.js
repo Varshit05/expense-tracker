@@ -20,11 +20,13 @@ app.use(cors({
   credentials: true
 }));
 
+app.options("*", cors());   
+
 app.use(express.json());
+
 app.get("/", (req, res) => {
   res.send("Expense Tracker API is running 🚀");
 });
-
 
 app.use("/auth", userRouter);
 app.use("/expenses", expenseRouter);
