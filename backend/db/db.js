@@ -1,7 +1,7 @@
 const mongoos = require('mongoose');
 const connectDB = async()=>{
     try {
-        await mongoos.connect('mongodb+srv://deadlock:asrasr123@cluster0.mnhdnpb.mongodb.net/?retryWrites=true&w=majority')
+        await mongoos.connect(process.env.MONGO_URL)
             console.log("Connected!!!")
     } catch (error) {
         console.log("Not Connected!!")

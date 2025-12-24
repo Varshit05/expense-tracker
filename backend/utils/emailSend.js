@@ -1,73 +1,69 @@
-const { jsPDF }= require('jspdf');
-const nodemailer = require('nodemailer');
-const dataParserForItems = require('./dataParser');
-require('jspdf-autotable');
-
-
+const { jsPDF } = require("jspdf");
+const nodemailer = require("nodemailer");
+const dataParserForItems = require("./dataParser");
+require("jspdf-autotable");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-// generating PDF Data 
+// Generate PDF
 function generatePDF(data) {
-    const doc = new jsPDF({
-      orientation : "vertical"
-    });
-    doc.setFontSize(32)
+  const doc = new jsPDF({ orientation: "vertical" });
 
-    doc.text("Your Expenses In Last One Month !!" , 100 , 20,'center')
-    doc.setLineWidth(2)
-    doc.line(20, 25, 170, 25);
+  doc.setFontSize(24);
+  doc.text("Your Expenses In Last One Month", 105, 20, { align: "center" });
+  doc.line(20, 25, 190, 25);
 
-    doc.setFontSize(22)
-    doc.autoTable({
-      body : data.body , 
-      theme : 'grid',
-      startY : 40,
-      head : [['S.No','Date','Amount','Category']],
-      foot : [['','Total',data.total,'']],
-      styles: { 
-          // fillColor:  [0,0,0] ,
-          textColor : [0,0,0],
-          fontSize : 14
-      },
-    })
+  doc.autoTable({
+    startY: 40,
+    head: [["S.No", "Date", "Amount", "Category"]],
+    body: data.body,
+    foot: [["", "Total", data.total, ""]],
+    theme: "grid",
+    styles: {
+      textColor: [0, 0, 0],
+      fontSize: 12
+    }
+  });
 
-
-    return doc.output("dataurlstring").split(',')[1];
+  return doc.output("dataurlstring").split(",")[1];
 }
 
-
-// Function to send the email with the generated PDF as an attachment
-async function sendEmailWithAttachment( recipient,items) {
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Send Email with PDF
+async function sendEmailWithAttachment(recipient, items) {
+  try {
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'ldead4524@gmail.com',
-            pass: 'cppqyjfnxyhrxkzq'
-        }
-    });
-    let body = dataParserForItems(items)
-      const pdfContent = generatePDF(body)
-
-      const mailOptions = {
-        from:'ldead4524@gmail.com' , 
-        to: recipient,
-        subject: 'Expense Report for This Month',
-        text: 'Please find your expense report attached.',
-        attachments: [
-          {
-            filename: 'expense_report.pdf',
-            content: pdfContent,
-            encoding : 'base64'
-          },
-        ],
-      };
-
-      try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent: ' + info.response);
-      } catch (error) {
-        console.error('Error sending email:', error);
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
       }
+    });
+
+    const body = dataParserForItems(items);
+    const pdfContent = generatePDF(body);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: recipient,
+      subject: "Monthly Expense Report",
+      text: "Please find attached your expense report for this month.",
+      attachments: [
+        {
+          filename: "expense_report.pdf",
+          content: pdfContent,
+          encoding: "base64"
+        }
+      ]
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent successfully");
+    return true;
+
+  } catch (error) {
+    console.error("❌ Error sending email:", error.message);
+    return false;
+  }
 }
 
-module.exports = sendEmailWithAttachment ;
+module.exports = sendEmailWithAttachment;
