@@ -15,6 +15,8 @@ app.use(cors({
     "http://localhost:3000",
     "https://expense-tracker-gamma-mauve.vercel.app"
   ],
+  methods: ["GET","POST","PUT","DELETE","PATCH","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
   credentials: true
 }));
 
